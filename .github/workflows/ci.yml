@@ -29,4 +29,4 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Run UI Tests
-        run: npx playwright test tests/regression --reporter=list
+        run: npx playwright test tests/e2e --reporter=list
