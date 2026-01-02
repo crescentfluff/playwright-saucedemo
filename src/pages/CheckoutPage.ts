@@ -1,4 +1,3 @@
-import { HeaderBar } from '@components/HeaderBar';
 import { Page, Locator } from '@playwright/test';
 import { CommonActions } from './CommonActions';
 

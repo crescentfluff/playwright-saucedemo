@@ -1,26 +1,24 @@
 import { Page, Locator } from "@playwright/test";
-import { HeaderBar } from "@components/HeaderBar";
-import { timeStamp } from "node:console";
+import { NavBar } from "@components/NavBar";
+import { navBarDataId } from "@utils/test-data";
+import { AppPaths } from "@enums/path";
 
 export class CommonActions {
     readonly page: Page;
-    readonly headerBar: HeaderBar;
+    readonly navbar: NavBar;
 
     constructor(page: Page) {
         this.page = page;
-        this.headerBar = new HeaderBar(page);
+        this.navbar = new NavBar(page.getByTestId(navBarDataId.mainHeader));
+
     }
 
     async navigateToHome() {
-        await this.page.goto('/');
+        await this.page.goto(AppPaths.HOME);
     }
 
     async navigateTo(path: string) {
         await this.page.goto(path);
-    }
-
-    async pageTitle(): Promise<string> {
-        return (await this.headerBar.headerTitle.textContent()) || '';
     }
 
     get currentUrl(): string {

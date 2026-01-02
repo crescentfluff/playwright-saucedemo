@@ -22,6 +22,12 @@
             ],
             "@utils/*": [
                 "src/utils/*"
+            ],
+            "@data/*": [
+                "src/model/data/*"
+            ],
+            "@enums/*": [
+                "src/model/enums/*"
             ]
         }
     },

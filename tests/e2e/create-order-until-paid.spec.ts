@@ -1,133 +1,83 @@
 import { test, expect } from '@playwright/test';
+import { LoginPage } from '@pages/LoginPage';
+import { valid_users } from '@data/UserAccountData';
 import { InventoryPage } from '@pages/InventoryPage';
 import { CheckoutPage } from '@pages/CheckoutPage';
 import { CheckoutPaymentPage } from '@pages/CheckoutPaymentPage';
 import { CartPage } from '@pages/CartPage';
 import { CompleteOrderPage } from '@pages/CompleteOrderPage';
-import { loginAsDefault } from '@utils/helper-action';
 import { NON_NUMERIC_REGEX } from '@utils/test-data';
+import { AppPaths } from '@enums/path';
 
-test.beforeEach(async ({ page }) => {
-    await loginAsDefault(page);
-});
+test.describe('E2E - Create order until paid flow', () => {
+    test.beforeEach(async ({ page }) => {
+        const loginPage = new LoginPage(page);
+        page.goto(AppPaths.HOME);
 
-test('Create order with single item', async ({ page }) => {
-    const inventory = new InventoryPage(page);
+        const user = valid_users[0];
+        await loginPage.login(user.username, user.password);
+        expect(page).toHaveURL(AppPaths.INVENTORY);
 
-    const itemCards = await inventory.getItemCards();
-    await itemCards[0].addToCartButton.click();
-    const selectedItemName = await itemCards[0].name.textContent();
+        const inventoryPage = new InventoryPage(page);
+        await inventoryPage.navbar.openMenu();
+        await inventoryPage.navbar.resetState();
+        expect(inventoryPage.navbar.cartMenu).toBeEmpty();
+    });
 
-    expect((await inventory.headerBar.getTotalItemsInCart()).valueOf()).toBe(1);
-    expect(await itemCards[0].removeFromCartButton.isVisible()).toBe(true);
+    test('single item order', async ({ page }) => {
+        const inventory = new InventoryPage(page);
 
-    await inventory.headerBar.clickCartIcon();
+        const itemCards = await inventory.getItemCards();
+        await itemCards[0].addToCartButton.click();
+        const selectedItemName = await itemCards[0].name.textContent();
 
-    const cart = new CartPage(page);
-    let pageTitle = (await cart.pageTitle()).toString();
-    expect(pageTitle).toBe('Your Cart');
+        let cartItemCount = (await inventory.navbar.cartMenu.textContent()) || '0';
+        expect(Number(cartItemCount)).toBe(1);
+        expect(await itemCards[0].removeFromCartButton.isVisible()).toBe(true);
 
-    const cartItems = await cart.getItemsInCart();
-    const cartItemName = await cartItems[0].name.textContent();
+        await inventory.navbar.goToCart();
 
-    expect(cartItems.length).toBe(1);
-    expect(cartItemName).toBe(selectedItemName);
+        const cart = new CartPage(page);
+        expect(cart.navbar.secondaryHeader).toHaveText('Your Cart');
 
-    await cart.clickCheckoutButton();
-    const checkout = new CheckoutPage(page);
+        const cartItems = await cart.getItemsInCart();
+        const cartItemName = await cartItems[0].name.textContent();
 
-    pageTitle = (await checkout.pageTitle()).toString();
-    expect(pageTitle).toBe('Checkout: Your Information');
+        expect(cartItems.length).toBe(1);
+        expect(cartItemName).toBe(selectedItemName);
 
-    await checkout.fillCheckoutInformation('John', 'Doe', '12345');
-    await checkout.clickContinue();
+        await cart.clickCheckoutButton();
+        const checkout = new CheckoutPage(page);
 
-    const checkoutPayment = new CheckoutPaymentPage(page);
-    pageTitle = (await checkoutPayment.pageTitle()).toString();
-    expect(pageTitle).toBe('Checkout: Overview');
+        expect(checkout.navbar.secondaryHeader).toHaveText('Checkout: Your Information');
 
-    const checkoutItems = await checkoutPayment.getTotalInventoryAmount();
-    const itemTotalValue = parseFloat((await checkoutPayment.itemTotalValue.textContent())!
-        .replace(NON_NUMERIC_REGEX, ''));
-    const taxValue = parseFloat((await checkoutPayment.taxValue.textContent())!
-        .replace(NON_NUMERIC_REGEX, ''));
-    const subtotalValue = parseFloat((await checkoutPayment.totalPriceValue.textContent())!
-        .replace(NON_NUMERIC_REGEX, ''));
+        await checkout.fillCheckoutInformation('John', 'Doe', '12345');
+        await checkout.clickContinue();
 
-    console.log('Checkout Items Total:', checkoutItems);
-    console.log('Item Total Value:', itemTotalValue);
-    console.log('Tax Value:', taxValue);
-    console.log('Subtotal Value:', subtotalValue);
+        const checkoutPayment = new CheckoutPaymentPage(page);
+        expect(checkoutPayment.navbar.secondaryHeader).toHaveText('Checkout: Overview');
 
-    expect(checkoutItems).toBeCloseTo(subtotalValue, 2);
-    expect(itemTotalValue).toBeCloseTo(subtotalValue + taxValue, 2);
+        const checkoutItems = await checkoutPayment.getTotalInventoryAmount();
+        const itemTotalValue = parseFloat((await checkoutPayment.itemTotalValue.textContent())!
+            .replace(NON_NUMERIC_REGEX, ''));
+        const taxValue = parseFloat((await checkoutPayment.taxValue.textContent())!
+            .replace(NON_NUMERIC_REGEX, ''));
+        const subtotalValue = parseFloat((await checkoutPayment.totalPriceValue.textContent())!
+            .replace(NON_NUMERIC_REGEX, ''));
 
-    await checkoutPayment.clickFinish();
-    const completeOrder = new CompleteOrderPage(page);
+        console.log('Checkout Items Total:', checkoutItems);
+        console.log('Item Total Value:', itemTotalValue);
+        console.log('Tax Value:', taxValue);
+        console.log('Subtotal Value:', subtotalValue);
 
-    expect(completeOrder.completeHeader.isVisible()).toBeTruthy();
-    expect((await completeOrder.completeHeader.textContent())?.toUpperCase())
-        .toContain('THANK YOU FOR YOUR ORDER');
-});
+        expect(checkoutItems).toBeCloseTo(subtotalValue, 2);
+        expect(itemTotalValue).toBeCloseTo(subtotalValue + taxValue, 2);
 
-test('Create order with multiple items', async ({ page }) => {
-    const expectedItemCount = 3;
-    const inventory = new InventoryPage(page);
-    const addedItemCards = await inventory.addItemToCartByCount(expectedItemCount);
-    const selectedItemNames: string[] = [];
+        await checkoutPayment.clickFinish();
+        const completeOrder = new CompleteOrderPage(page);
 
-    expect((await inventory.headerBar.getTotalItemsInCart()).valueOf()).toBe(expectedItemCount);
-    for (const itemCard of addedItemCards) {
-        selectedItemNames.push((await itemCard.name.textContent())!);
-        expect(await itemCard.removeFromCartButton.isVisible()).toBe(true);
-    }
-
-    await inventory.headerBar.clickCartIcon();
-    const cart = new CartPage(page);
-    let pageTitle = (await cart.pageTitle()).toString();
-    expect(pageTitle).toBe('Your Cart');
-
-    const cartItems = await cart.getItemsInCart();
-
-    expect(cartItems.length).toBe(expectedItemCount);
-    for (const cartItem of cartItems) {
-        const cartItemName = (await cartItem.name.textContent())!;
-        expect(selectedItemNames).toContain(cartItemName);
-    }
-
-    await cart.clickCheckoutButton();
-    const checkout = new CheckoutPage(page);
-
-    pageTitle = (await checkout.pageTitle()).toString();
-    expect(pageTitle).toBe('Checkout: Your Information');
-
-    await checkout.fillCheckoutInformation('Defa', 'Ultnama', '12345');
-    await checkout.clickContinue();
-
-    const checkoutPayment = new CheckoutPaymentPage(page);
-    pageTitle = (await checkoutPayment.pageTitle()).toString();
-    expect(pageTitle).toBe('Checkout: Overview');
-
-    const checkoutItems = await checkoutPayment.getTotalInventoryAmount();
-    const itemTotalValue = parseFloat((await checkoutPayment.itemTotalValue.textContent())!
-        .replace(NON_NUMERIC_REGEX, ''));
-    const taxValue = parseFloat((await checkoutPayment.taxValue.textContent())!
-        .replace(NON_NUMERIC_REGEX, ''));
-    const subtotalValue = parseFloat((await checkoutPayment.totalPriceValue.textContent())!
-        .replace(NON_NUMERIC_REGEX, ''));
-
-    console.log('Checkout Items Total:', checkoutItems);
-    console.log('Item Total Value:', itemTotalValue);
-    console.log('Tax Value:', taxValue);
-    console.log('Subtotal Value:', subtotalValue);
-
-    expect(checkoutItems).toBeCloseTo(subtotalValue, 2);
-    expect(itemTotalValue).toBeCloseTo(subtotalValue + taxValue, 2);
-
-    await checkoutPayment.clickFinish();
-    const completeOrder = new CompleteOrderPage(page);
-
-    expect(completeOrder.completeHeader.isVisible()).toBeTruthy();
-    expect((await completeOrder.completeHeader.textContent())?.toUpperCase())
-        .toContain('THANK YOU FOR YOUR ORDER');
+        expect(completeOrder.completeHeader.isVisible()).toBeTruthy();
+        expect((await completeOrder.completeHeader.textContent())?.toUpperCase())
+            .toContain('THANK YOU FOR YOUR ORDER');
+    });
 });

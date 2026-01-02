@@ -1,11 +1,14 @@
 import { Page, Locator } from '@playwright/test';
-import { HeaderBar } from '@components/HeaderBar';
+import { NavBar } from '@components/NavBar';
+import { navBarDataId } from '@utils/test-data';
 
 export class CompleteOrderPage {
     readonly page: Page;
+    readonly navbar: NavBar;
 
     constructor(page: Page) {
         this.page = page;
+        this.navbar = new NavBar(page.getByTestId(navBarDataId.mainHeader));
     }
 
     get completeHeader() {

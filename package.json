@@ -1,5 +1,5 @@
 {
-  "name": "cucumber-playwright-saucedemo",
+  "name": "playwright-saucedemo",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -16,7 +16,7 @@
   ],
   "author": "felisitas",
   "license": "ISC",
-  "description": "Cucumber + Playwright with Typescript automation for SauceDemo.",
+  "description": "Playwright with Typescript automation for SauceDemo.",
   "devDependencies": {
     "@playwright/test": "^1.57.0",
     "@types/node": "^25.0.1",
@@ -26,5 +26,9 @@
     "prettier": "^3.3.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "properties-reader": "^2.3.0"
   }
 }
