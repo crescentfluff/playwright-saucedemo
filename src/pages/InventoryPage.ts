@@ -72,8 +72,14 @@ export class InventoryPage extends CommonActions {
     async removeFromCartByName(productName: string) {
         let normalName = InventoryPage.normalizeProductName(productName);
         const itemCard = await this.inventoryItemByName(productName);
-        await itemCard.getByTestId(inventoryDataId.remove(normalName)).click();
-        await itemCard.getByTestId(inventoryDataId.addToCartBtn(normalName)).waitFor({ state: 'visible' });
+        try {
+            await itemCard.getByTestId(inventoryDataId.remove(normalName)).click();
+            await itemCard.getByTestId(inventoryDataId.addToCartBtn(normalName)).waitFor({ state: 'visible' });
+            return true
+        } catch (e) {
+            console.log(`Failed to remove product: ${productName}`, e);
+            return false;
+        }
     }
 
     async addItemToCartByCount(count: number): Promise<ItemCard[]> {
