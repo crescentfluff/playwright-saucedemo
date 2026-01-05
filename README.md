@@ -53,6 +53,12 @@ npx playwright test --reporter=html
 npx playwright test --workers=1
 ```
 
+### Run test with environment set single worker
+```bash
+Windows/CMD: set ENV=qa && npx playwright test
+Linux/MacOS: ENV=prod && npx playwright test
+```
+
 ## Test Report
 
 This project is using Playwright built-in HTML report. After execution, reports will be generated under *test-report/*. 
