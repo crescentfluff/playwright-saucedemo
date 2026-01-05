@@ -4,6 +4,7 @@ This is an end-to-end automation project specifically made for saucedemo.com usi
 
 ### Creator's Notes
 - Assertions are implemented in **test files only**, page-object focus more on interactions.
+- Github actions is set to run with every pull request against branch **/master**
 - In case of failures, this project is configured to rerun failed case.
 - Locators prioritized:
     - getByTestId (custom testIdAttribute: data-test)
