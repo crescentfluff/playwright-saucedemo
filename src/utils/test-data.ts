@@ -1,35 +1,23 @@
 export const NON_NUMERIC_REGEX = /[^0-9.]/g;
-export const VALID_PASSWORD = 'secret_sauce';
-export const users = {
-    valid: {
-        username: 'standard_user',
-        password: VALID_PASSWORD
-    },
 
-    locked_out: {
-        username: 'locked_out_user',
-        password: VALID_PASSWORD
-    },
+export const navBarDataId = {
+    mainHeader: 'primary-header',
+    secondaryHeader: 'secondary-header',
+    cartMenu: 'shopping-cart-link',
+    burgerMenu: 'open-menu',
+    allItemsMenu: 'inventory-sideb ar-link',
+    aboutMenu: 'about-sidebar-link',
+    logoutMenu: 'logout-sidebar-link',
+    resetMenu: 'reset-sidebar-link',
+    closeMenu: 'close-menu'
+}
 
-    invalid: {
-        username: 'invalid_user',
-        password: 'invalid_password'
-    },
-
-    empty: {
-        username: '',
-        password: ''
-    },
-
-    emptyPassword: {
-        username: 'standard_user',
-        password: ''
-    }
-};
-
-export const sortOptions = {
-    'Name (A to Z)': 'az',
-    'Name (Z to A)': 'za',
-    'Price (low to high)': 'lohi',
-    'Price (high to low)': 'hilo'
-};
+export const inventoryDataId = {
+    inventoryList: 'inventory-list',
+    inventoryItem: 'inventory-item',
+    itemName: 'inventory-item-name',
+    itemDesc: 'inventory-item-desc',
+    itemPrice: 'inventory-item-price',
+    addToCartBtn: (productName: string) => `add-to-cart-${productName}`,
+    remove: (productName: string) => `remove-${productName}`
+}

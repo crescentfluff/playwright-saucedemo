@@ -1,6 +1,7 @@
 import { Page, Locator } from '@playwright/test';
 import { ItemCard } from '@components/ItemCard';
 import { CommonActions } from './CommonActions';
+import { inventoryDataId } from '@utils/test-data';
 
 export class CartPage extends CommonActions {
     readonly page: Page;
@@ -19,12 +20,16 @@ export class CartPage extends CommonActions {
     }
 
     get cartItems() {
-        return this.page.locator('.cart_item');
+        return this.page.getByTestId(inventoryDataId.inventoryItem);
     }
 
-    async isItemInCart(itemName: string): Promise<boolean> {
-        const itemLocator = this.cartItems.filter({ hasText: itemName });
-        return await itemLocator.count() > 0;
+    async findByProductName(productName: string): Promise<boolean> {
+        const available = await this.page.getByTestId(inventoryDataId.itemName).filter({
+            hasText: productName
+        });
+
+        if (await available.count() <= 0) return false;
+        return available.isVisible();
     }
 
     async getItemsInCart(): Promise<ItemCard[]> {
