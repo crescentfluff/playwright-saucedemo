@@ -25,6 +25,66 @@ test.describe('E2E - Create order until paid flow', () => {
         expect(inventoryPage.navbar.cartMenu).toBeEmpty();
     });
 
+    test('multiple items order', async ({ page }) => {
+        const inventory = new InventoryPage(page);
+        const selectedItems = sampleProductNames.multiProductName.split(',').map(item => item.trim());
+        let cartItemCount = 0;
+
+        for (const item of selectedItems) {
+            expect(await inventory.addToCartByName(item)).toBeTruthy();
+            cartItemCount += 1;
+            let cartCount = (await inventory.navbar.cartMenu.textContent()) || '0';
+            expect(Number(cartCount)).toBe(cartItemCount);
+        }
+
+        await inventory.navbar.goToCart();
+
+        const cart = new CartPage(page);
+        expect(cart.navbar.secondaryHeader).toHaveText('Your Cart');
+
+        const cartItems = await cart.getItemsInCart();
+        expect(cartItems.length).toBe(selectedItems.length);
+
+        for (const selectedItem of selectedItems) {
+            const isItemInCart = cartItems.some(async (cartItem) => {
+                const itemName = await cartItem.name.textContent();
+                return itemName === selectedItem;
+            });
+            expect(isItemInCart).toBeTruthy();
+        }
+
+        await cart.clickCheckoutButton();
+        const checkout = new CheckoutPage(page);
+        expect(checkout.navbar.secondaryHeader).toHaveText('Checkout: Your Information');
+
+        await checkout.fillCheckoutInformation('Jane', 'Doe', '54321');
+        await checkout.clickContinue();
+
+        const checkoutPayment = new CheckoutPaymentPage(page);
+        expect(checkoutPayment.navbar.secondaryHeader).toHaveText('Checkout: Overview');
+
+        const checkoutItems = await checkoutPayment.getTotalInventoryAmount();
+        const itemTotalValue = parseFloat((await checkoutPayment.itemTotalValue.textContent())!
+            .replace(NON_NUMERIC_REGEX, ''));
+        const taxValue = parseFloat((await checkoutPayment.taxValue.textContent())!
+            .replace(NON_NUMERIC_REGEX, ''));
+        const subtotalValue = parseFloat((await checkoutPayment.totalPriceValue.textContent())!
+            .replace(NON_NUMERIC_REGEX, ''));
+
+        console.log('Checkout Items Total:', checkoutItems);
+        console.log('Item Total Value:', itemTotalValue);
+        console.log('Tax Value:', taxValue);
+        console.log('Subtotal Value:', subtotalValue);
+        console.log('Item Names:', selectedItems.join(', '));
+        expect(checkoutItems).toBeCloseTo(subtotalValue, 2);
+        expect(itemTotalValue).toBeCloseTo(subtotalValue + taxValue, 2);
+        await checkoutPayment.clickFinish();
+        const completeOrder = new CompleteOrderPage(page);
+        expect(completeOrder.completeHeader.isVisible()).toBeTruthy();
+        expect((await completeOrder.completeHeader.textContent())?.toUpperCase())
+            .toContain('THANK YOU FOR YOUR ORDER');
+    });
+
     test('single item order', async ({ page }) => {
         const inventory = new InventoryPage(page);
         const selectedItem = sampleProductNames.singleProductName;
