@@ -1,4 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
+import dotenv from 'dotenv';
+import path from 'path';
+
+const envName = (process.env.ENV ?? 'qa').trim().toLowerCase();
+dotenv.config({ path: path.resolve(process.cwd(), `${envName}-properties.env`) });
 
 /**
  * Read environment variables from file.
@@ -26,7 +31,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
-    baseURL: 'https://www.saucedemo.com',
+    baseURL: process.env.BASE_URL,
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     testIdAttribute: 'data-test',

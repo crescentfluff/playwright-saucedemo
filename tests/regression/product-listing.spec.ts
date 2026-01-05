@@ -7,6 +7,9 @@ import { sortOptions } from '@data/SortOptionData';
 
 test.describe('Product listing page tests', () => {
     test.beforeEach(async ({ page }) => {
+        console.log('test env is:: ', process.env.ENV);
+        console.log('test usernya is::', valid_users[0].username ?? '-no user-');
+
         await page.goto('/');
         const loginPage = new LoginPage(page);
         const user = valid_users[0];

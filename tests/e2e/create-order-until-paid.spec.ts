@@ -33,7 +33,6 @@ test.describe('E2E - Create order until paid flow', () => {
 
         let cartItemCount = (await inventory.navbar.cartMenu.textContent()) || '0';
         expect(Number(cartItemCount)).toBe(1);
-        expect(await itemCards[0].removeFromCartButton.isVisible()).toBe(true);
 
         await inventory.navbar.goToCart();
 

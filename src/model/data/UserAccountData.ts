@@ -1,3 +1,5 @@
+import { userCredentials } from "@utils/config";
+
 export type UserAccount = {
     type: string;
     username: string;
@@ -8,21 +10,21 @@ export type UserAccount = {
 export const valid_users: UserAccount[] = [
     {
         type: 'valid',
-        username: 'standard_user',
-        password: 'secret_sauce'
+        username: userCredentials.validUser,
+        password: userCredentials.password
     }
 ];
 
 export const invalid_users: UserAccount[] = [
     {
         type: 'locked_out',
-        username: 'locked_out_user',
-        password: 'secret_sauce',
+        username: userCredentials.lockedOutUser,
+        password: userCredentials.password,
         errorMessage: 'Sorry, this user has been locked out.'
     },
     {
         type: 'invalid',
-        username: 'wrong_user',
+        username: userCredentials.invalidUser,
         password: 'wrong_password',
         errorMessage: 'Username and password do not match any user in this service'
     },
@@ -34,7 +36,7 @@ export const invalid_users: UserAccount[] = [
     },
     {
         type: 'empty password',
-        username: 'standard_user',
+        username: userCredentials.validUser,
         password: '',
         errorMessage: 'Password is required'
     }

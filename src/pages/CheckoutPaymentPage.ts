@@ -1,5 +1,4 @@
 import { Page, Locator } from '@playwright/test';
-import { HeaderBar } from '@components/NavBar';
 import { CommonActions } from './CommonActions';
 import { ItemCard } from '@components/ItemCard';
 

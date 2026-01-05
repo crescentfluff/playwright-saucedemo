@@ -23,6 +23,9 @@
             "@utils/*": [
                 "src/utils/*"
             ],
+            "@configs/*": [
+                "src/configs/*"
+            ],
             "@data/*": [
                 "src/model/data/*"
             ],
@@ -34,6 +37,8 @@
     "include": [
         "playwright.config.ts",
         "tests/**/*.ts",
-        "src/**/*.ts"
+        "src/**/*.ts",
+        "prod-properties.ts",
+        "qa-properties.ts"
     ]
 }
