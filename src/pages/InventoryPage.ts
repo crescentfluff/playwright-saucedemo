@@ -59,6 +59,7 @@ export class InventoryPage extends CommonActions {
         let normalName = InventoryPage.normalizeProductName(productName);
         const itemCard = await this.inventoryItemByName(productName);
         try {
+            console.log('Adding to cart product:', productName);
             await itemCard.getByTestId(inventoryDataId.addToCartBtn(normalName)).click();
             await itemCard.getByTestId(inventoryDataId.remove(normalName)).waitFor({ state: 'visible' });
             return true;

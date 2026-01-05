@@ -8,6 +8,7 @@ import { CartPage } from '@pages/CartPage';
 import { CompleteOrderPage } from '@pages/CompleteOrderPage';
 import { NON_NUMERIC_REGEX } from '@utils/test-data';
 import { AppPaths } from '@enums/path';
+import { sampleProductNames } from '@utils/config';
 
 test.describe('E2E - Create order until paid flow', () => {
     test.beforeEach(async ({ page }) => {
@@ -26,14 +27,11 @@ test.describe('E2E - Create order until paid flow', () => {
 
     test('single item order', async ({ page }) => {
         const inventory = new InventoryPage(page);
-
-        const itemCards = await inventory.getItemCards();
-        await itemCards[0].addToCartButton.click();
-        const selectedItemName = await itemCards[0].name.textContent();
+        const selectedItem = sampleProductNames.singleProductName;
+        expect(await inventory.addToCartByName(selectedItem)).toBeTruthy();
 
         let cartItemCount = (await inventory.navbar.cartMenu.textContent()) || '0';
         expect(Number(cartItemCount)).toBe(1);
-
         await inventory.navbar.goToCart();
 
         const cart = new CartPage(page);
@@ -43,7 +41,7 @@ test.describe('E2E - Create order until paid flow', () => {
         const cartItemName = await cartItems[0].name.textContent();
 
         expect(cartItems.length).toBe(1);
-        expect(cartItemName).toBe(selectedItemName);
+        expect(cartItemName).toBe(selectedItem);
 
         await cart.clickCheckoutButton();
         const checkout = new CheckoutPage(page);
@@ -68,6 +66,7 @@ test.describe('E2E - Create order until paid flow', () => {
         console.log('Item Total Value:', itemTotalValue);
         console.log('Tax Value:', taxValue);
         console.log('Subtotal Value:', subtotalValue);
+        console.log('Item Name:', selectedItem);
 
         expect(checkoutItems).toBeCloseTo(subtotalValue, 2);
         expect(itemTotalValue).toBeCloseTo(subtotalValue + taxValue, 2);
