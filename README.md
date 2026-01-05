@@ -1,4 +1,4 @@
-# Playwright E2E Study Case for SauceDemo
+# Playwright E2E Automation for SauceDemo
 
 This is an end-to-end automation project specifically made for saucedemo.com using Playwright, built-in HTML Report, and Typescript. Github actions configuration included for CI implementation.
 
